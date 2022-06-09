@@ -1,10 +1,84 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import { object } from "prop-types";
 function App() {
-	const [todos, setTodos] = useState([]);
+	const [todos, setTodos] = useState([
+		// [
+		// 	{ label: "Make coffe", done: false },
+		// 	{ label: "Walk the dog", done: false },
+		// 	{ label: "Do the replits", done: false },
+		// ],
+	]);
 	const [todo, setTodo] = useState("");
 	const [todoEditing, setTodoEditing] = useState(null);
 	const [editingText, setEditingText] = useState("");
+	const createUser = useCallback(async () => {
+		try {
+			const response = await fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
+				{
+					method: "post",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify([]),
+				}
+			);
+			if (response.status !== 200) {
+				alert("fallo la creacion del usuario");
+				return;
+			}
+			getToDos();
+		} catch (error) {
+			alert("Esta caido el servidor !");
+			return;
+		}
+	}, [getToDos]);
+
+	const getToDos = useCallback(async () => {
+		try {
+			const response = await fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10"
+			);
+			if (response.status !== 200) {
+				if (response.status === 404) await createUser();
+				return;
+			}
+			const body = await response.json();
+			setTodos(body);
+		} catch (error) {
+			alert("Esta caido el servidor !");
+			return;
+		}
+	}, [setTodos]);
+	useEffect(() => {
+		getToDos();
+	}, [getToDos]);
+
+	const createTask = async (event) => {
+		try {
+			let response = {};
+			if (event.key == "Enter") {
+				console.log("se dio enter");
+				response = await fetch(
+					"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
+					{
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify([
+							...todos,
+							{ label: todo, done: false },
+						]),
+					}
+				);
+			}
+			// if (response.ok) {
+			// 	setTodos([...todos, { label: todo, done: false }]);
+			// 	console.log(response);
+			// }
+			console.log(response.ok);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	function handleSubmit(e) {
 		e.preventDefault();
@@ -48,17 +122,19 @@ function App() {
 			<form onSubmit={handleSubmit}>
 				<input
 					type={"text"}
-					onChange={(e) => setTodo(e.target.value)}
 					value={todo}
+					onKeyDown={createTask}
+					onChange={(e) => setTodo(e.target.value)}
 				/>
 				<button className="btn btn-primary m-1" type="submit">
 					Submit
 				</button>
 			</form>
 			{todos.map((todo) => (
-				<div className="todoKey" key={todo.id}>
-					{todoEditing === todo.id ? (
+				<div className="todoKey" key={todo.label}>
+					{todoEditing === todo.label ? (
 						<input
+							task={task.label}
 							className="d-flex row"
 							type={"text"}
 							onChange={(e) => setEditingText(e.target.value)}
@@ -69,7 +145,7 @@ function App() {
 							<div
 								style={{ fontSize: "20px" }}
 								className="todoText">
-								{"- " + todo.text}
+								{"- " + todo.label}
 							</div>
 						</div>
 					)}
@@ -94,4 +170,8 @@ function App() {
 	);
 }
 
+App.propTypes = {
+	setterList: PropTypes.func,
+	task: PropTypes.string,
+};
 export default App;
