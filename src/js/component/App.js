@@ -80,15 +80,34 @@ function App() {
 		}
 	};
 
-	function handleSubmit(e) {
+	async function handleSubmit(e) {
 		e.preventDefault();
-		const newTodo = {
-			id: new Date().getTime(),
-			text: todo,
-			completed: false,
-		};
-		setTodos([...todos].concat(newTodo));
-		setTodo("");
+		try{
+			let response = await fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
+				{
+					method: "PUT",
+					headers: {"Content-Type" : "application/json"},
+					body: JSON.stringify([
+						...todos,
+						{label:todo , done: false},
+					]),
+				}
+			);
+		if(response.ok){
+			setTodos([...todos, {label:todo, done: false}])
+		}
+	}
+		// const newTodo = {
+		// 	id: new Date().getTime(),
+		// 	text: todo,
+		// 	completed: false,
+		// };
+		// setTodos([...todos].concat(newTodo));
+		// setTodo(""); 
+		catch (error){
+			console.log(error)
+		}
 	}
 
 	function deleteTodo(id) {
@@ -123,7 +142,7 @@ function App() {
 				<input
 					type={"text"}
 					value={todo}
-					onKeyDown={createTask}
+					// onKeyDown={createTask}
 					onChange={(e) => setTodo(e.target.value)}
 				/>
 				<button className="btn btn-primary m-1" type="submit">
@@ -134,7 +153,7 @@ function App() {
 				<div className="todoKey" key={todo.label}>
 					{todoEditing === todo.label ? (
 						<input
-							task={task.label}
+							// task={task.label}
 							className="d-flex row"
 							type={"text"}
 							onChange={(e) => setEditingText(e.target.value)}
