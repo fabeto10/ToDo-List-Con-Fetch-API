@@ -110,21 +110,54 @@ function App() {
 		}
 	}
 
-	function deleteTodo(id) {
-		const updateTodos = [...todos].filter((todo) => todo.id !== id);
-		setTodos(updateTodos);
+	async function deleteTodo(id) {
+		const updateTodos = [...todos].filter((todo, index) => index !== id);
+		console.log(updateTodos)
+		// e.preventDefault();
+		try{
+			let response = await fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
+				{
+					method: "PUT",
+					headers: {"Content-Type" : "application/json"},
+					body: JSON.stringify(updateTodos),
+				}
+			);
+			if (response.ok){
+				setTodos(updateTodos);
+			}
+		}
+		catch(error){
+			console.log(error)
+		}
 	}
 
-	function editTodo(id) {
-		const updateTodos = [...todos].map((todo) => {
-			if (todo.id === id) {
-				todo.id = editingText;
+	async function editTodo(id) {
+		const updateTodos = [...todos].map((todo, index) => {
+			if ( index === id) {
+				todo.label = prompt()
 			}
 			return todo;
 		});
-		setTodos(updateTodos);
-		setTodoEditing(null);
-		setEditingText("");
+		// setTodos(updateTodos);
+		// setTodoEditing(null);
+		// setEditingText("");
+		try{
+			let response = await fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
+				{
+					method: "PUT",
+					headers: {"Content-Type" : "application/json"},
+					body: JSON.stringify(updateTodos),
+				}
+			);
+			if (response.ok){
+				setTodos(updateTodos);
+			}
+		}
+		catch(error){
+			console.log(error)
+		}
 	}
 
 	return (
@@ -149,8 +182,8 @@ function App() {
 					Submit
 				</button>
 			</form>
-			{todos.map((todo) => (
-				<div className="todoKey" key={todo.label}>
+			{todos.map((todo, index) => (
+				<div className="todoKey" key={index}>
 					{todoEditing === todo.label ? (
 						<input
 							// task={task.label}
@@ -170,18 +203,18 @@ function App() {
 					)}
 					<button
 						className="m-1 btn btn-danger"
-						onClick={() => deleteTodo(todo.id)}>
+						onClick={() => deleteTodo(index)}>
 						Delete
 					</button>
+					{/* <button
+						className="m-1 btn btn-success"
+						onClick={() => setTodoEditing(index)}>
+						Edit Todo
+					</button> */}
 					<button
 						className="m-1 btn btn-success"
-						onClick={() => setTodoEditing(todo.id)}>
-						Edit Todo
-					</button>
-					<button
-						className="m-1 btn btn-warning"
-						onClick={() => editTodo(todo.id)}>
-						Submit Edit
+						onClick={() => editTodo(index)}>
+						Edit Text
 					</button>
 				</div>
 			))}
