@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { object } from "prop-types";
 function App() {
 	const [todos, setTodos] = useState([
 		// [
@@ -96,6 +95,9 @@ function App() {
 			);
 		if(response.ok){
 			setTodos([...todos, {label:todo, done: false}])
+		} else if (response.status !== 200) {
+			if (response.status === 404) await createUser();
+			return;
 		}
 	}
 		// const newTodo = {
@@ -113,7 +115,6 @@ function App() {
 	async function deleteTodo(id) {
 		const updateTodos = [...todos].filter((todo, index) => index !== id);
 		console.log(updateTodos)
-		// e.preventDefault();
 		try{
 			let response = await fetch(
 				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
@@ -125,6 +126,27 @@ function App() {
 			);
 			if (response.ok){
 				setTodos(updateTodos);
+			}
+		}
+		catch(error){
+			console.log(error)
+		}
+	}
+
+	async function deleteAllTodos(e) {
+		e.preventDefault();
+		try{
+			let response = await fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fabeto10",
+				{
+					method: "DELETE",
+					headers: {"Content-Type" : "application/json"},
+					body: JSON.stringify([]),
+				}
+			);
+			if (response.ok){
+				// setTodos([]);
+				await createUser()
 			}
 		}
 		catch(error){
@@ -181,6 +203,13 @@ function App() {
 				<button className="btn btn-primary m-1" type="submit">
 					Submit
 				</button>
+				<button
+					className="m-1 btn btn-danger"
+					onClick={(e) => {
+						deleteAllTodos(e)
+					}}>
+					Delete All Task
+				</button>
 			</form>
 			{todos.map((todo, index) => (
 				<div className="todoKey" key={index}>
@@ -202,7 +231,7 @@ function App() {
 						</div>
 					)}
 					<button
-						className="m-1 btn btn-danger"
+						className="m-1 btn btn-warning"
 						onClick={() => deleteTodo(index)}>
 						Delete
 					</button>
