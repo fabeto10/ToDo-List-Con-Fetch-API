@@ -145,7 +145,7 @@ function App() {
 				}
 			);
 			if (response.ok){
-				// setTodos([]);
+				setTodos([]);
 				await createUser()
 			}
 		}
